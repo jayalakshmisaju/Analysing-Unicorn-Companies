@@ -7,6 +7,21 @@ This project involves analyzing data related to unicorn companies—startups tha
 ### DATA
 [Data](https://www.mavenanalytics.io/data-playground?order=date_added%2Cdesc&search=UNICORN)
 
+| Column Name  | Value               |
+|--------------|---------------------|
+| Company      | Name of the Unicorn Company |
+| Valuation    | Company Worth         |
+| Date Joined  | Date of Reaching Billion-Dollar Mark  |
+| Industry     | Industry of the company|
+| City         | City of the company                     |
+| Country      | Country of the company                     |
+| Continent    | Continent of the company                     |
+| Year Founded | Founding Year                    |
+| Funding      | Capital raised                    |
+| Select Investors |Investors of the company                |
+
+
+
 ### DATA CLEANING
 
 - Duplicate Values: Checked for duplicate company entries in the datasets. Bolt and Fabric were identified as duplicates but were preserved as they operate in different locations.
