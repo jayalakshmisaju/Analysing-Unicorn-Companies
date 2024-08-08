@@ -1,0 +1,178 @@
+# DATA CLEANING
+
+### Checking for duplicate values
+
+SELECT company, COUNT(company)
+FROM sakila.unicorn_info
+GROUP BY company
+HAVING COUNT(company)>1
+
+SELECT company, COUNT(company)
+FROM sakila.unicorn_finance
+GROUP BY company
+HAVING COUNT(company)>1
+
+Bolt and Fabric are the duplicate entries in both datasets, but since they are based in different cities or countries, we will preserve all these entries.
+
+### Renaming columns
+
+ALTER TABLE sakila.unicorn_info
+RENAME COLUMN `Year Founded` TO Year_Founded
+
+ALTER TABLE sakila.unicorn_finance
+RENAME COLUMN `Date Joined` TO Date_Joined,
+RENAME COLUMN `Select Investors` TO Investors
+
+### Formatting dates
+											
+ALTER TABLE sakila.unicorn_finance
+ADD DateJoined DATE, 
+ADD Year_Joined INT,
+ADD Month_Joined INT,
+ADD Day_Joined INT
+
+UPDATE sakila.unicorn_finance
+SET DateJoined = STR_TO_DATE(Date_Joined,'%Y-%m-%d')
+
+UPDATE sakila.unicorn_finance
+SET Year_Joined = YEAR(DateJoined),
+Month_Joined = MONTH(DateJoined),
+Day_Joined = DAY(DateJoined)
+
+ALTER TABLE sakila.unicorn_finance
+DROP COLUMN Date_Joined
+Dropping unnecessary rows
+
+DELETE
+FROM sakila.unicorn_finance
+WHERE funding IN ('$0M','Unknown')
+
+
+### Formatting funding and valuation
+
+UPDATE sakila.unicorn_finance
+SET valuation = REPLACE(valuation,'$',' '),
+funding = REPLACE(funding,'$',' ')
+
+UPDATE sakila.unicorn_finance
+SET valuation = CASE 
+WHEN valuation LIKE '%M' THEN CAST(REPLACE(valuation,'M',' ') AS DECIMAL(20,2))* 1000000
+WHEN valuation LIKE '%B' THEN CAST(REPLACE(valuation,'B', ' ' ) AS DECIMAL(20,2)) * 1000000000
+ELSE CAST(valuation AS DECIMAL(20,2))
+END, funding = CASE 
+WHEN funding LIKE '%M' THEN CAST(REPLACE(funding,'M',' ') AS DECIMAL(20,2))* 1000000
+WHEN funding LIKE '%B' THEN CAST(REPLACE(funding,'B', ' ' ) AS DECIMAL(20,2)) * 1000000000
+ELSE CAST(funding AS DECIMAL(20,2))
+END
+
+ALTER TABLE sakila.unicorn_finance
+MODIFY COLUMN valuation DECIMAL(20,2),
+MODIFY COLUMN funding DECIMAL(20,2)
+
+# DATA EXPLORATION
+
+### Total unicorn companies
+
+SELECT COUNT(*),COUNT(DISTINCT country)
+FROM
+(SELECT i.company,year_founded,industry,i.city,country,continent,year_joined,funding,valuation
+FROM sakila.unicorn_info AS i
+INNER JOIN sakila.unicorn_finance AS f
+ON i.company = f.company AND i.city = f.city) AS S1
+
+A total of 1601 unicorn companies  across 46 countries are present
+Countries with most unicorns
+
+
+SELECT country ,COUNT(company) AS count_unicorns, 
+(COUNT(company)*100)/ (SELECT COUNT(*) FROM sakila.unicorn_finance) as percent_unicorns
+FROM
+(SELECT i.company,year_founded,industry,i.city,country,continent,year_joined,funding,valuation
+FROM sakila.unicorn_info AS i
+INNER JOIN sakila.unicorn_finance AS f
+ON i.company = f.company AND i.city = f.city) AS S1
+GROUP BY country
+ORDER BY count_unicorns DESC
+
+
+The United States leads with the highest value, 555,(55 %) indicating a significant standing compared to other countries in the dataset. 
+China follows with a value of 170,(16.0226%) which is significantly lower than the United States but still quite substantial compared to other countries.
+ India holds the third position with a value of 65,(6.1263 %) showing a notable gap from both the United States and China.
+
+
+### Average duration for a company to become unicorn
+
+
+SELECT CAST(AVG(year_joined - year_founded) AS INT) AS Avg_Year
+FROM (
+  SELECT i.company, year_founded, industry, i.city, country, continent, year_joined, funding, valuation
+  FROM sakila.unicorn_info AS i
+  INNER JOIN sakila.unicorn_finance AS f ON i.company = f.company AND i.city = f.city
+) AS S1;
+
+
+On an average it takes 7 years for a company to become a unicorn.
+
+### Industries with most unicorns
+
+SELECT  industry, COUNT(company) AS count_unicorns, 
+(COUNT(company)*100)/ (SELECT COUNT(*) FROM sakila.unicorn_finance) as percent_unicorns
+FROM
+(SELECT i.company,year_founded,industry,i.city,country,continent,year_joined,funding,valuation
+FROM sakila.unicorn_info AS i
+INNER JOIN sakila.unicorn_finance AS f
+ON i.company = f.company AND i.city = f.city) AS S1
+GROUP BY industry
+ORDER BY count_unicorns DESC
+
+
+Fintech is the top industry with 222 number of unicorns (20.9237 %)followed by Internet software & services. 
+Ecommerce & direct to consumer (19.1329 %) and Artificial Intelligence industries (10.2733 %) can also be considered as promising industries for unicorns .
+
+
+### Top  unicorns with highest Return on Investment (ROI)
+ 
+SELECT company, ((valuation-funding)/funding)  AS ROI 
+FROM
+(SELECT i.company,year_founded,industry,i.city,country,continent,year_joined,funding,valuation
+FROM sakila.unicorn_info AS i
+INNER JOIN sakila.unicorn_finance AS f
+ON i.company = f.company AND i.city = f.city) AS S1
+GROUP BY company,ROI
+ORDER BY ROI DESC
+LIMIT 10
+
+
+Zapier has an exceptionally high ROI of 3999.00, indicating a remarkably high return.
+Dunamu has a significantly lower ROI than Zapier, at 125.76, but it is still quite substantial compared to typical returns.
+Workhuman's ROI is 110.11, slightly lower than Dunamu's but still impressive.
+
+
+### The investors that have consistently backed the world's most valuable startups
+
+USE sakila;
+CREATE TEMPORARY TABLE numb (n INT);
+INSERT INTO numb(n) VALUES (1),(2),(3),(4),(5),(6),(7),(8);
+SELECT * FROM sakila.numb
+
+UPDATE sakila.unicorn_finance
+SET investors = REPLACE(investors,', ',',')
+
+CREATE TABLE j AS
+SELECT company,investors
+FROM sakila.unicorn_finance
+
+SELECT substring_index(substring_index(investors,',',n),',',-1) as inv,
+count(t.company) AS n_unicorns
+FROM
+(SELECT j.company,j.investors,n
+FROM j
+JOIN numb 
+ON (char_length(investors)-char_length(replace(investors,',','')))>=n) AS  t
+GROUP BY inv
+ORDER BY n_unicorns desc
+
+Accel emerges as the leading investor in the unicorn ecosystem, backing an impressive 46 startups that achieved billion-dollar valuations. Close behind are Andreessen Horowitz and Sequoia Capital China with 41 and 38 unicorns in their portfolios, respectively.
+
+
+
