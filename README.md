@@ -1,1 +1,1 @@
-# Analysing-Unicorn-Companies
+# Analyzing-Unicorn-Companies
