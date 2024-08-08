@@ -4,6 +4,9 @@
 
 This project involves analyzing data related to unicorn companies—startups that have reached a valuation of $1 billion or more. The data is processed using MySQL, and the analysis focuses on data cleaning, exploration, and deriving insights about the global unicorn landscape.Additionally, a Tableau dashboard has been created to visualize the findings.
 
+### DATA
+[Data](https://www.mavenanalytics.io/data-playground?order=date_added%2Cdesc&search=UNICORN)
+
 ### DATA CLEANING
 
 - Duplicate Values: Checked for duplicate company entries in the datasets. Bolt and Fabric were identified as duplicates but were preserved as they operate in different locations.
