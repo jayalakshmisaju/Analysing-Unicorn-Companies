@@ -1,6 +1,6 @@
-# DATA CLEANING
+DATA CLEANING
 
-### Checking for duplicate values
+Checking for duplicate values
 
 SELECT company, COUNT(company)
 FROM sakila.unicorn_info
@@ -14,7 +14,7 @@ HAVING COUNT(company)>1
 
 Bolt and Fabric are the duplicate entries in both datasets, but since they are based in different cities or countries, we will preserve all these entries.
 
-### Renaming columns
+Renaming columns
 
 ALTER TABLE sakila.unicorn_info
 RENAME COLUMN `Year Founded` TO Year_Founded
@@ -23,7 +23,7 @@ ALTER TABLE sakila.unicorn_finance
 RENAME COLUMN `Date Joined` TO Date_Joined,
 RENAME COLUMN `Select Investors` TO Investors
 
-### Formatting dates
+Formatting dates
 											
 ALTER TABLE sakila.unicorn_finance
 ADD DateJoined DATE, 
@@ -48,7 +48,7 @@ FROM sakila.unicorn_finance
 WHERE funding IN ('$0M','Unknown')
 
 
-### Formatting funding and valuation
+Formatting funding and valuation
 
 UPDATE sakila.unicorn_finance
 SET valuation = REPLACE(valuation,'$',' '),
@@ -69,9 +69,9 @@ ALTER TABLE sakila.unicorn_finance
 MODIFY COLUMN valuation DECIMAL(20,2),
 MODIFY COLUMN funding DECIMAL(20,2)
 
-# DATA EXPLORATION
+DATA EXPLORATION
 
-### Total unicorn companies
+Total unicorn companies
 
 SELECT COUNT(*),COUNT(DISTINCT country)
 FROM
@@ -100,7 +100,7 @@ China follows with a value of 170,(16.0226%) which is significantly lower than t
  India holds the third position with a value of 65,(6.1263 %) showing a notable gap from both the United States and China.
 
 
-### Average duration for a company to become unicorn
+Average duration for a company to become unicorn
 
 
 SELECT CAST(AVG(year_joined - year_founded) AS INT) AS Avg_Year
@@ -113,7 +113,7 @@ FROM (
 
 On an average it takes 7 years for a company to become a unicorn.
 
-### Industries with most unicorns
+Industries with most unicorns
 
 SELECT  industry, COUNT(company) AS count_unicorns, 
 (COUNT(company)*100)/ (SELECT COUNT(*) FROM sakila.unicorn_finance) as percent_unicorns
@@ -130,7 +130,7 @@ Fintech is the top industry with 222 number of unicorns (20.9237 %)followed by I
 Ecommerce & direct to consumer (19.1329 %) and Artificial Intelligence industries (10.2733 %) can also be considered as promising industries for unicorns .
 
 
-### Top  unicorns with highest Return on Investment (ROI)
+Top  unicorns with highest Return on Investment (ROI)
  
 SELECT company, ((valuation-funding)/funding)  AS ROI 
 FROM
@@ -148,7 +148,7 @@ Dunamu has a significantly lower ROI than Zapier, at 125.76, but it is still qui
 Workhuman's ROI is 110.11, slightly lower than Dunamu's but still impressive.
 
 
-### The investors that have consistently backed the world's most valuable startups
+The investors that have consistently backed the world's most valuable startups
 
 USE sakila;
 CREATE TEMPORARY TABLE numb (n INT);
