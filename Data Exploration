@@ -13,7 +13,7 @@ GROUP BY company
 HAVING COUNT(company)>1
 
 Bolt and Fabric are the duplicate entries in both datasets, but since they are based in different cities or countries, we will preserve all these entries.
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------
 Renaming columns
 
 ALTER TABLE sakila.unicorn_info
@@ -22,7 +22,7 @@ RENAME COLUMN `Year Founded` TO Year_Founded
 ALTER TABLE sakila.unicorn_finance
 RENAME COLUMN `Date Joined` TO Date_Joined,
 RENAME COLUMN `Select Investors` TO Investors
-
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Formatting dates
 											
 ALTER TABLE sakila.unicorn_finance
@@ -46,7 +46,7 @@ Dropping unnecessary rows
 DELETE
 FROM sakila.unicorn_finance
 WHERE funding IN ('$0M','Unknown')
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Formatting funding and valuation
 
@@ -69,6 +69,8 @@ ALTER TABLE sakila.unicorn_finance
 MODIFY COLUMN valuation DECIMAL(20,2),
 MODIFY COLUMN funding DECIMAL(20,2)
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 DATA EXPLORATION
 
 Total unicorn companies
@@ -81,8 +83,10 @@ INNER JOIN sakila.unicorn_finance AS f
 ON i.company = f.company AND i.city = f.city) AS S1
 
 A total of 1601 unicorn companies  across 46 countries are present
-Countries with most unicorns
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Countries with most unicorns
 
 SELECT country ,COUNT(company) AS count_unicorns, 
 (COUNT(company)*100)/ (SELECT COUNT(*) FROM sakila.unicorn_finance) as percent_unicorns
@@ -99,9 +103,9 @@ The United States leads with the highest value, 555,(55 %) indicating a signific
 China follows with a value of 170,(16.0226%) which is significantly lower than the United States but still quite substantial compared to other countries.
  India holds the third position with a value of 65,(6.1263 %) showing a notable gap from both the United States and China.
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Average duration for a company to become unicorn
-
 
 SELECT CAST(AVG(year_joined - year_founded) AS INT) AS Avg_Year
 FROM (
@@ -112,6 +116,8 @@ FROM (
 
 
 On an average it takes 7 years for a company to become a unicorn.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Industries with most unicorns
 
@@ -129,6 +135,7 @@ ORDER BY count_unicorns DESC
 Fintech is the top industry with 222 number of unicorns (20.9237 %)followed by Internet software & services. 
 Ecommerce & direct to consumer (19.1329 %) and Artificial Intelligence industries (10.2733 %) can also be considered as promising industries for unicorns .
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Top  unicorns with highest Return on Investment (ROI)
  
@@ -147,6 +154,7 @@ Zapier has an exceptionally high ROI of 3999.00, indicating a remarkably high re
 Dunamu has a significantly lower ROI than Zapier, at 125.76, but it is still quite substantial compared to typical returns.
 Workhuman's ROI is 110.11, slightly lower than Dunamu's but still impressive.
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 The investors that have consistently backed the world's most valuable startups
 
